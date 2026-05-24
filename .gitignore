@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Data — raw / source files not versioned (only master_dataset.* is published)
+data/raw/
+data/processed/
+data/master_dataset.parquet
+
+# Source Excel files (internal / proprietary data) — never published
+*.xlsx
+*.xls
+Data_*.xlsx
+
+# Original project spec / prompt — not part of the deliverable
+prompt_claude_code_phase1.md
+
+# API keys & config — never commit (contains FRED / EIA keys)
+config/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
