@@ -144,9 +144,14 @@ def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     df["brent_l1_log_ret_1d"] = np.log(df["brent_l1"] / df["brent_l1"].shift(1))
     df["dfl_chg_1d"]          = df["DFL"].diff()
 
-    # 20-business-day realised volatility
+    # 20-business-day realised volatility (slow, stable)
     df["brent_l1_vol_20d"] = df["brent_l1_log_ret_1d"].rolling(20).std()
     df["dfl_vol_20d"]      = df["dfl_chg_1d"].rolling(20).std()
+
+    # EWMA realised volatility of the DFL (fast-reacting, smooth — RiskMetrics-style).
+    # alpha=0.10 → ~9-day effective memory: reacts faster than the 20d window and
+    # avoids the "ghost effect" of a fixed window. Look-ahead-safe (uses changes up to t).
+    df["dfl_vol_ewma"] = np.sqrt((df["dfl_chg_1d"] ** 2).ewm(alpha=0.10).mean())
 
     # Macro short-horizon changes
     df["vix_chg_5d"] = df["vix"].diff(5)
@@ -227,7 +232,7 @@ def main() -> int:
         "dubai_l1_l2", "dubai_l1_l3",
         "brent_wti_arb", "brent_dubai_efs", "gasoil_brent_crack",
         "brent_l1_log_ret_1d", "dfl_chg_1d",
-        "brent_l1_vol_20d", "dfl_vol_20d",
+        "brent_l1_vol_20d", "dfl_vol_20d", "dfl_vol_ewma",
         "vix_chg_5d", "dxy_chg_5d",
         "crude_stock_anomaly", "dist_stock_anomaly",
     ]

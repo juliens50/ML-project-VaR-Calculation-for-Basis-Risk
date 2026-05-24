@@ -115,7 +115,8 @@ Le dataset contient **44 colonnes** (1 index `date` + 43 valeurs) organisées en
 | `brent_l1_log_ret_1d` | `log(brent_l1[t] / brent_l1[t-1])` | Log-return quotidien du Brent L1, base des vol et des features de PCA. |
 | `dfl_chg_1d` | `DFL[t] - DFL[t-1]` | Variation absolue du DFL (NB : pas un log-return car DFL peut être négatif). |
 | `brent_l1_vol_20d` | rolling std des log-returns 20 jours ouvrés | **Vol réalisée mensuelle.** Feature de régime classique : vol élevée = régime "stress", vol basse = régime "calme". |
-| `dfl_vol_20d` | rolling std de `dfl_chg_1d` sur 20 jours | Vol propre du DFL. Mesure directement la **volatilité de la cible** = un indicateur clé pour calibrer la VaR. |
+| `dfl_vol_20d` | rolling std de `dfl_chg_1d` sur 20 jours | Vol propre du DFL (lente, stable). Mesure directement la **volatilité de la cible** = un indicateur clé pour calibrer la VaR. |
+| `dfl_vol_ewma` | `sqrt(EWMA(dfl_chg_1d², α=0.10))` | **Vol EWMA du DFL** (rapide, lisse, style RiskMetrics, mémoire ~9j). Réagit plus vite que la 20j aux spikes et évite l'effet fantôme. Couplée à `dfl_vol_20d`, l'écart entre les deux capte l'**accélération** de la volatilité. |
 
 #### Macro changes
 
