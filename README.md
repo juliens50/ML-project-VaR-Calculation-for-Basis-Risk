@@ -20,6 +20,7 @@ Data collection and fusion (scripts 01–09) feed five modelling notebooks:
 | `03_regimes_kmeans` | K-means (k=3) on the PCA factors → three directional regimes: Contango (downside risk), Calm, Physical tightness (upside risk). Found without ever using the DFL, yet they separate its distribution sharply and asymmetrically. |
 | `04_var_quantile` | XGBoost quantile regression on regime + continuous features, temporal split (train 2014–2023, test 2024–2026), with split-conformal recalibration of the quantiles. |
 | `05_backtest` | Kupiec / Christoffersen backtests, comparison against six baselines, and a winning XGBoost + FHS ensemble. |
+| `06_application` | A trader's-view application: dollar VaR for a position, P&L and breach cost, Expected Shortfall, and position sizing for a risk budget. |
 
 ## Key results
 
@@ -56,7 +57,7 @@ The merged master dataset is committed at `data/master_dataset.csv` (and `.pkl`)
 │   ├── raw/                      # raw per-source downloads (gitignored)
 │   └── processed/                # PCA scores, regime labels, VaR predictions (gitignored)
 ├── scripts/                      # 01–09: data collection, fusion, export
-├── notebooks/                    # 01–05: EDA → PCA → regimes → VaR → backtest
+├── notebooks/                    # 01–06: EDA → PCA → regimes → VaR → backtest → application
 ├── requirements.txt
 └── README.md
 ```
@@ -97,7 +98,7 @@ python scripts/06_load_manual_crude.py
 python scripts/08_build_master_dataset.py
 python scripts/09_export_pkl.py
 
-# 4. Run the notebooks in order (01 → 05)
+# 4. Run the notebooks in order (01 → 06)
 ```
 
 The notebooks read the committed `data/master_dataset.pkl`, so they run without re-downloading.
@@ -114,7 +115,7 @@ Each notebook writes its intermediate output (PCA scores, regime labels, VaR pre
 
 ## Possible extensions
 
-- An applied "trader's view" notebook: dollar VaR for a position, P&L simulation, Expected
-  Shortfall, and position sizing.
-- Walk-forward / expanding-window refitting; Expected Shortfall (Basel/FRTB); ICE COT positioning
-  and ARA inventory data as additional fat-tail signals.
+- Walk-forward / expanding-window refitting to remove the regime look-ahead and run the model
+  truly out-of-sample, day by day.
+- A model-based Expected Shortfall (notebook 06 computes it empirically; FRTB uses a 97.5% ES).
+- ICE COT positioning and ARA inventory data (Vortexa/Kpler) as additional fat-tail signals.
