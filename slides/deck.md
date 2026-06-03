@@ -110,6 +110,14 @@ Three directional regimes — Contango (downside), Calm, Physical tightness (ups
 
 ---
 
+## The regimes through time
+
+![h:380](assets/07_regime_timeline.png)
+
+The same regimes laid over the DFL itself: contango (blue) marks the oversupplied, downside periods — including the 2020 COVID dip; tightness (red) the violent upside spikes of 2022 and 2026; calm (grey) everything in between. The unsupervised model rediscovered the market's chronology without ever seeing the DFL.
+
+---
+
 ## The model
 
 XGBoost quantile regression on the regime plus continuous market features, predicting the quantiles of the next-day DFL move (q01 / q05 / q95 / q99).
@@ -136,6 +144,22 @@ All out-of-sample, against real baselines including Filtered Historical Simulati
 ![h:360](assets/05_pinball_ranking.png)
 
 Conditioning beats distribution: Student-t → regime cuts loss by 26%, while adding fat tails buys only 3%. No single model dominates, but the ensemble (XGBoost + FHS) wins and is the only one to pass every backtest.
+
+---
+
+## VaR by model — who adapts
+
+![h:370](assets/08_var_by_model.png)
+
+The upper VaR (q99) through time. The parametric models are flat lines, blind to the crisis. The per-regime baseline steps. Only XGBoost and FHS adapt, widening as the April 2026 stress hits. Adaptivity is what separates the top models from the rest.
+
+---
+
+## The ensemble alone
+
+![h:380](assets/09_var_ensemble.png)
+
+Strip it back to the winning model. The ensemble's VaR sits tight in calm and opens up in the crisis, framing the realized moves on both sides — the same adaptivity as FHS, but tamed, and the only model that passes every backtest.
 
 ---
 
