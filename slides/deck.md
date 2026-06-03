@@ -135,7 +135,7 @@ Two axes:
 - Calibration: Kupiec (right number of breaches?) and Christoffersen (are breaches clustered?). The regulatory grade pass/fail.
 - Accuracy: pinball loss, the proper scoring rule that ranks the models.
 
-All out of sample, against real baselines including Filtered Historical Simulation (the bank standard).
+All out of sample, against real baselines including Filtered Historical Simulation (the industry standard).
 
 ---
 
