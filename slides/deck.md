@@ -2,15 +2,13 @@
 marp: true
 theme: default
 paginate: true
-math: katex
 ---
 
 <!--
-NOTE: theme is a placeholder. Once Julien provides the IFP / personal slide
-template, translate it into a Marp CSS theme and swap `theme:` above (or add a
-<style> block / external theme file). Content below is template-independent.
-Render: VS Code "Marp for VS Code" extension -> export PDF/PPTX,
-or:  npx @marp-team/marp-cli slides/deck.md --pdf
+IFP School theme is in the <style> block below (translated from the school template).
+Render: VS Code "Marp for VS Code" extension, export PDF/PPTX, or:
+  CHROME_PATH="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" \
+    npx @marp-team/marp-cli slides/deck.md -o slides/deck.pdf --allow-local-files
 -->
 
 <style>
@@ -35,7 +33,7 @@ strong { color: var(--ifp-blue); }
 img { display: block; margin: 6px auto; }
 section::after { color: var(--ifp-blue); font-size: 15px; right: 102px; bottom: 26px; }
 
-/* Title / closing slides */
+/* Title slide */
 section.lead {
   background-color: var(--ifp-blue);
   color: #ffffff;
@@ -52,21 +50,23 @@ section.lead::after { content: ""; }
 
 <!-- _class: lead -->
 
-# Regime-Conditional Value-at-Risk on the DFL Brent
+# Regime Conditional Value at Risk on the DFL Brent
 
 Modelling the basis risk of a physical crude desk
 
-Julien — IFP School — June 2026
+Armine BARSHI, Salah IKARIDENE, Romain KADOURI and Julien SYLVESTRE
+
+IFP School, June 2026
 
 ---
 
 ## The problem
 
-A physical crude desk buys Dated-priced cargoes and hedges them with ICE Brent futures.
+A physical crude desk buys Dated priced cargoes and hedges them with ICE Brent futures.
 
-The leftover gap is the DFL — Dated Brent minus front-line ICE Brent. That gap is basis risk: a structural premium that cannot be fully arbitraged away.
+The leftover gap is the DFL: Dated Brent minus front line ICE Brent. That gap is basis risk, a structural premium that cannot be fully arbitraged away.
 
-It is real P&L every day, and its tail risk is what we set out to model.
+It is real P&L every day and its tail risk is what we set out to model.
 
 ---
 
@@ -74,7 +74,7 @@ It is real P&L every day, and its tail risk is what we set out to model.
 
 ![h:380](assets/01_dfl_distribution.png)
 
-Skewness +5.5, kurtosis +62 — extreme, asymmetric fat tails. No single distribution (Gaussian, Student-t, skew-normal) fits, so a flat parametric VaR badly understates the risk.
+Skewness +5.5, kurtosis +62: extreme, asymmetric fat tails. No single distribution (Gaussian, Student t, skew normal) fits, so a flat parametric VaR badly understates the risk.
 
 ---
 
@@ -82,7 +82,7 @@ Skewness +5.5, kurtosis +62 — extreme, asymmetric fat tails. No single distrib
 
 ![h:360](assets/02_dfl_timeline.png)
 
-Calm for years, then violent — COVID 2020, Russia 2022, April 2026 (+$36). The extremes cluster, so the DFL behaves differently depending on the market state. The fix: condition the VaR on the regime.
+Calm for years, then violent: COVID 2020, Russia 2022, April 2026 (+$36). The extremes cluster, so the DFL behaves differently depending on the market state. The fix: condition the VaR on the regime.
 
 ---
 
@@ -90,11 +90,11 @@ Calm for years, then violent — COVID 2020, Russia 2022, April 2026 (+$36). The
 
 Data (12 years, 3 crude benchmarks + macro + inventories)
 
-→ PCA — 5 interpretable factors (curve tightness, risk-off, East-West arb, momentum, trans-Atlantic)
+→ PCA: 5 interpretable factors (curve tightness, risk off, East West arb, momentum, trans Atlantic)
 
-→ K-means — 3 market regimes
+→ K means: 3 market regimes
 
-→ XGBoost quantile regression — conditional VaR + conformal recalibration
+→ XGBoost quantile regression: conditional VaR + conformal recalibration
 
 → Backtest vs 6 baselines, then an ensemble
 
@@ -106,7 +106,7 @@ Data (12 years, 3 crude benchmarks + macro + inventories)
 
 ![h:380](assets/03_regime_boxplot.png)
 
-Three directional regimes — Contango (downside), Calm, Physical tightness (upside). Built without ever using the DFL, yet they split it sharply and asymmetrically: contango down to −$11, tightness up to +$36.
+Three directional regimes: Contango (downside), Calm, Physical tightness (upside). Built without ever using the DFL, yet they split it sharply and asymmetrically: contango down to −$11, tightness up to +$36.
 
 ---
 
@@ -114,17 +114,17 @@ Three directional regimes — Contango (downside), Calm, Physical tightness (ups
 
 ![h:380](assets/07_regime_timeline.png)
 
-The same regimes laid over the DFL itself: contango (blue) marks the oversupplied, downside periods — including the 2020 COVID dip; tightness (red) the violent upside spikes of 2022 and 2026; calm (grey) everything in between. The unsupervised model rediscovered the market's chronology without ever seeing the DFL.
+The same regimes laid over the DFL itself: contango (blue) marks the oversupplied, downside periods, including the 2020 COVID dip; tightness (red) the violent upside spikes of 2022 and 2026; calm (grey) everything in between. The unsupervised model rediscovered the market's chronology without ever seeing the DFL.
 
 ---
 
 ## The model
 
-XGBoost quantile regression on the regime plus continuous market features, predicting the quantiles of the next-day DFL move (q01 / q05 / q95 / q99).
+XGBoost quantile regression on the regime plus continuous market features, predicting the quantiles of the next day DFL move (q01 / q05 / q95 / q99).
 
-Temporal split: train 2014–2023, test 2024–2026, so the 2026 spike is a genuine out-of-sample stress test.
+Temporal split: train 2014 to 2023, test 2024 to 2026, so the 2026 spike is a genuine out of sample stress test.
 
-An upside calibration leak appeared (q95 breached 10.7% vs 5%). After ruling out three causes, it was fixed post-hoc with split-conformal recalibration.
+An upside calibration leak appeared (q95 breached 10.7% vs 5%). After ruling out three causes, it was fixed post hoc with split conformal recalibration.
 
 ---
 
@@ -132,10 +132,10 @@ An upside calibration leak appeared (q95 breached 10.7% vs 5%). After ruling out
 
 Two axes, not one:
 
-- Calibration — Kupiec (right number of breaches?) and Christoffersen (are breaches clustered?). The regulatory-grade pass/fail.
-- Accuracy — pinball loss, the proper scoring rule that ranks the models.
+- Calibration: Kupiec (right number of breaches?) and Christoffersen (are breaches clustered?). The regulatory grade pass/fail.
+- Accuracy: pinball loss, the proper scoring rule that ranks the models.
 
-All out-of-sample, against real baselines including Filtered Historical Simulation (the bank standard).
+All out of sample, against real baselines including Filtered Historical Simulation (the bank standard).
 
 ---
 
@@ -143,15 +143,15 @@ All out-of-sample, against real baselines including Filtered Historical Simulati
 
 ![h:360](assets/05_pinball_ranking.png)
 
-Conditioning beats distribution: Student-t → regime cuts loss by 26%, while adding fat tails buys only 3%. No single model dominates, but the ensemble (XGBoost + FHS) wins and is the only one to pass every backtest.
+Conditioning beats distribution: Student t → regime cuts loss by 26%, while adding fat tails buys only 3%. No single model dominates, but the ensemble (XGBoost + FHS) wins and is the only one to pass every backtest.
 
 ---
 
-## VaR by model — who adapts
+## VaR by model: who adapts
 
 ![h:370](assets/08_var_by_model.png)
 
-The upper VaR (q99) through time. The parametric models are flat lines, blind to the crisis. The per-regime baseline steps. Only XGBoost and FHS adapt, widening as the April 2026 stress hits. Adaptivity is what separates the top models from the rest.
+The upper VaR (q99) through time. The parametric models are flat lines, blind to the crisis. The per regime baseline steps. Only XGBoost and FHS adapt, widening as the April 2026 stress hits. Adaptivity is what separates the top models from the rest.
 
 ---
 
@@ -159,7 +159,7 @@ The upper VaR (q99) through time. The parametric models are flat lines, blind to
 
 ![h:380](assets/09_var_ensemble.png)
 
-Strip it back to the winning model. The ensemble's VaR sits tight in calm and opens up in the crisis, framing the realized moves on both sides — the same adaptivity as FHS, but tamed, and the only model that passes every backtest.
+Strip it back to the winning model. The ensemble's VaR sits tight in calm and opens up in the crisis, framing the realized moves on both sides. It keeps the adaptivity of FHS but tamed, the only model that passes every backtest.
 
 ---
 
@@ -167,7 +167,7 @@ Strip it back to the winning model. The ensemble's VaR sits tight in calm and op
 
 ![h:360](assets/04_ensemble_bands.png)
 
-Tight in calm, wide in the 2026 crisis — the risk number breathes. Best pinball loss, passes all twelve backtest checks, and fixes the clustered downside breaches that XGBoost alone failed.
+Tight in calm, wide in the 2026 crisis: the risk number breathes. Best pinball loss, passes all twelve backtest checks and fixes the clustered downside breaches that XGBoost alone failed.
 
 ---
 
@@ -175,37 +175,37 @@ Tight in calm, wide in the 2026 crisis — the risk number breathes. Best pinbal
 
 For a position long 1,000,000 bbl of DFL:
 
-- 1-day 99% VaR ≈ $2.7M in calm markets, ballooning past $10M in April 2026.
+- 1 day 99% VaR ≈ $2.7M in calm markets, ballooning past $10M in April 2026.
 - Expected Shortfall: when the 95% VaR breaks, the average loss is 2.25× the threshold.
 
-The tail is worse than the VaR line suggests — which is exactly why Basel III / FRTB uses Expected Shortfall.
+The tail is worse than the VaR line suggests, which is exactly why Basel III / FRTB uses Expected Shortfall.
 
 ---
 
-## VaR as a self-tightening position limit
+## VaR as a self tightening position limit
 
 ![h:340](assets/06_position_sizing.png)
 
-Run in reverse: a fixed risk budget sets the allowed position. For a $20M daily VaR budget, the desk can run ~12 Mbbl in calm and under 2 Mbbl in the crisis — a 6–7× cut, automatically, exactly when it matters.
+Run in reverse: a fixed risk budget sets the allowed position. For a $20M daily VaR budget, the desk can run ~12 Mbbl in calm and under 2 Mbbl in the crisis: a 6 to 7× cut, automatically, exactly when it matters.
 
 ---
 
-## Limits, stated honestly
+## Limits
 
-- The April 2026 move exceeds anything in training — VaR must be complemented by stress testing.
-- The regimes are fit on the full sample (look-ahead); production would refit walk-forward.
-- Part of the measured daily move is snap-time noise (Platts 16:30 vs ICE 19:30), not real risk.
-- The statistically best VaR is not the most usable — FHS's crisis spikes are pro-cyclical.
+- The April 2026 move exceeds anything in training, so VaR must be complemented by stress testing.
+- The regimes are fit on the full sample (look ahead); production would refit walk forward.
+- Part of the measured daily move is snap time noise (Platts 16:30 vs ICE 19:30), not real risk.
+- The statistically best VaR is not the most usable: FHS's crisis spikes are pro cyclical.
 
 ---
 
 ## Takeaways
 
-- An end-to-end regime-conditional VaR, calibrated and formally validated.
+- An end to end regime conditional VaR, calibrated and formally validated.
 - Conditioning on the market state matters far more than the choice of distribution.
-- The ensemble is the only fully-calibrated model — structure (XGBoost) plus volatility (FHS).
-- Made tangible: dollar VaR, Expected Shortfall, and position sizing.
-- And honest about where, and why, it reaches its limits.
+- The ensemble is the only fully calibrated model: structure (XGBoost) plus volatility (FHS).
+- Made tangible: dollar VaR, Expected Shortfall and position sizing.
+- And honest about where and why it reaches its limits.
 
 ---
 
