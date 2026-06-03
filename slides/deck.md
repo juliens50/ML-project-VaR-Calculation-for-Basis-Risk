@@ -130,7 +130,7 @@ An upside calibration leak appeared (q95 breached 10.7% vs 5%). After ruling out
 
 ## How the models are evaluated
 
-Two axes, not one:
+Two axes:
 
 - Calibration: Kupiec (right number of breaches?) and Christoffersen (are breaches clustered?). The regulatory grade pass/fail.
 - Accuracy: pinball loss, the proper scoring rule that ranks the models.
